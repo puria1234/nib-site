@@ -56,6 +56,12 @@
       background: var(--bg-deep);
     }
 
+    .parallax-layer {
+      position: absolute;
+      inset: 0;
+      will-change: transform;
+    }
+
     .aurora-blade {
       position: absolute;
       border-radius: 50%;
@@ -449,6 +455,10 @@
       margin-bottom: 48px;
     }
 
+    .feature-grid .feature:nth-child(1) { transition-delay: 0s; }
+    .feature-grid .feature:nth-child(2) { transition-delay: 0.1s; }
+    .feature-grid .feature:nth-child(3) { transition-delay: 0.2s; }
+
     .feature {
       border-top: 1px solid var(--navy-line);
       padding-top: 16px;
@@ -500,17 +510,31 @@
       .feature-grid { grid-template-columns: 1fr; }
     }
 
+    /* --- Scroll reveal --- */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .aurora-blade { animation: none; }
+      .parallax-layer { transform: none !important; }
+      .reveal { opacity: 1; transform: none; transition: none; }
     }
   </style>
 </head>
 <body>
 
   <div class="aurora-container">
-    <div class="aurora-blade blade-1"></div>
-    <div class="aurora-blade blade-2"></div>
-    <div class="aurora-blade blade-3"></div>
+    <div class="parallax-layer" data-speed="0.18"><div class="aurora-blade blade-1"></div></div>
+    <div class="parallax-layer" data-speed="0.30"><div class="aurora-blade blade-2"></div></div>
+    <div class="parallax-layer" data-speed="0.42"><div class="aurora-blade blade-3"></div></div>
     <div class="film-grain"></div>
     <div class="vignette"></div>
   </div>
@@ -530,6 +554,7 @@
       <a href="#features">Features</a>
       <a href="setup.html#install">Install</a>
       <a href="setup.html#usage">Usage</a>
+      <a href="suggestions.html">Suggestions</a>
       <a href="#">Source</a>
     </div>
     <div class="nav-actions">
@@ -572,7 +597,7 @@
     <div class="install-caption">Load unpacked in Chrome, Edge, or Brave. Not on any store yet.</div>
 
     <!-- Popup Mockup -->
-    <div class="popup-frame">
+    <div class="popup-frame reveal">
       <div class="popup-header">
         <div class="popup-title">
           <svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true">
@@ -631,27 +656,83 @@
 
     <!-- Features -->
     <div class="feature-grid" id="features">
-      <div class="feature">
+      <div class="feature reveal">
         <h3>Export to text</h3>
         <p>Pick your course, hit extract, and download the multiple-choice set as a .txt you can study anywhere. Image-based choices get flagged instead of dropped silently.</p>
       </div>
-      <div class="feature">
+      <div class="feature reveal">
         <h3>Answer Hider</h3>
         <p>Covers the correct and incorrect indicators so a review page works as practice. Toggle it from the popup or the floating panel on the page.</p>
       </div>
-      <div class="feature">
+      <div class="feature reveal">
         <h3>AI study tools</h3>
         <p>Generate similar questions, flashcards, or a concept summary from what you extracted. Bring your own Claude API key; it stays in your browser.</p>
       </div>
     </div>
 
-    <a href="setup.html" class="ghost-pill">Read the setup guide &rarr;</a>
+    <a href="setup.html" class="ghost-pill reveal">Read the setup guide &rarr;</a>
 
-    <p class="legal-note">
+    <p class="legal-note reveal">
       Nib is an independent open-source project. Not affiliated with, endorsed by, or connected to the College Board.
       Only multiple-choice questions are supported. Use it in line with your school's academic integrity policy.
     </p>
   </main>
+
+  <script>
+    (function () {
+      var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /* Scroll-linked parallax on the aurora background layers */
+      var layers = Array.prototype.slice.call(document.querySelectorAll('.parallax-layer'));
+      var heroLogo = document.querySelector('.hero-logo');
+      var ticking = false;
+
+      function updateParallax() {
+        var y = window.pageYOffset || document.documentElement.scrollTop;
+
+        layers.forEach(function (layer) {
+          var speed = parseFloat(layer.getAttribute('data-speed')) || 0.2;
+          layer.style.transform = 'translate3d(0, ' + (y * speed) + 'px, 0)';
+        });
+
+        if (heroLogo) {
+          heroLogo.style.transform = 'translate3d(0, ' + (y * 0.12) + 'px, 0) rotate(' + (y * 0.03) + 'deg)';
+        }
+
+        ticking = false;
+      }
+
+      function onScroll() {
+        if (!ticking) {
+          window.requestAnimationFrame(updateParallax);
+          ticking = true;
+        }
+      }
+
+      if (!reduceMotion) {
+        window.addEventListener('scroll', onScroll, { passive: true });
+        updateParallax();
+      }
+
+      /* Fade-and-rise reveal for content as it enters the viewport */
+      var revealEls = document.querySelectorAll('.reveal');
+
+      if ('IntersectionObserver' in window && !reduceMotion) {
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+        revealEls.forEach(function (el) { observer.observe(el); });
+      } else {
+        revealEls.forEach(function (el) { el.classList.add('is-visible'); });
+      }
+    })();
+  </script>
 
 </body>
 </html>

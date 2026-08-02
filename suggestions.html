@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suggestions | Nib</title>
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b1426'/%3E%3Cg stroke='%238ab4ff' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M10 23V9'/%3E%3Cpath d='M22 9v14'/%3E%3Cpath d='M10 9l12 14'/%3E%3C/g%3E%3Ccircle cx='10' cy='9' r='3.2' fill='%238ab4ff'/%3E%3Ccircle cx='22' cy='23' r='3.2' fill='%238ab4ff'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #050912;
+      --navy-surface: #0b1426;
+      --navy-raised: #111d33;
+      --navy-line: rgba(138, 180, 255, 0.14);
+
+      --text-bright: #eef3fc;
+      --text-muted: #8b99b4;
+
+      --accent-ice: #8ab4ff;
+      --accent-blue: #4d7cf0;
+      --accent-deep: #24417f;
+
+      --font-ui: 'Instrument Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-deep);
+      color: var(--text-bright);
+      font-family: var(--font-ui);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      -webkit-font-smoothing: antialiased;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* --- Parallax aurora background, matches the rest of the site --- */
+    .aurora-container {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+      background: var(--bg-deep);
+    }
+
+    .parallax-layer {
+      position: absolute;
+      inset: 0;
+      will-change: transform;
+    }
+
+    .aurora-blade {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(130px);
+      mix-blend-mode: screen;
+      opacity: 0.55;
+      will-change: transform, opacity;
+    }
+
+    .blade-1 {
+      top: -15%; left: 15%;
+      width: 55vw; height: 40vh;
+      background: radial-gradient(ellipse at center, var(--accent-blue) 0%, var(--accent-deep) 55%, transparent 80%);
+      animation: drift-1 20s ease-in-out infinite alternate, breathe 16s ease-in-out infinite alternate;
+    }
+
+    .blade-2 {
+      top: 40%; right: -10%;
+      width: 50vw; height: 55vh;
+      background: radial-gradient(ellipse at center, var(--accent-ice) 0%, var(--accent-deep) 60%, transparent 80%);
+      animation: drift-2 24s ease-in-out infinite alternate-reverse, breathe 18s ease-in-out infinite alternate;
+    }
+
+    @keyframes drift-1 { 0% { transform: translate(0,0) rotate(0deg); } 100% { transform: translate(8vw,6vh) rotate(8deg); } }
+    @keyframes drift-2 { 0% { transform: translate(0,0) rotate(0deg); } 100% { transform: translate(-8vw,-8vh) rotate(-10deg); } }
+    @keyframes breathe { 0% { opacity: 0.55; transform: scale(1); } 100% { opacity: 0.28; transform: scale(1.08); } }
+
+    .film-grain {
+      position: absolute;
+      inset: 0;
+      opacity: 0.3;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+    }
+
+    .vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, transparent 30%, var(--bg-deep) 100%);
+      pointer-events: none;
+    }
+
+    /* --- Logo --- */
+    .logo-mark { width: 22px; height: 22px; flex-shrink: 0; }
+    .logo-mark .node { fill: var(--accent-ice); }
+    .logo-mark .edge { stroke: var(--accent-ice); stroke-width: 2.4; stroke-linecap: round; fill: none; }
+    .logo-mark .edge-dim { stroke: var(--accent-ice); stroke-width: 2.4; stroke-linecap: round; fill: none; opacity: 0.4; }
+
+    /* --- Nav --- */
+    .pill-nav {
+      position: fixed;
+      top: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: max-content;
+      min-width: 640px;
+      background: rgba(11, 20, 38, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--navy-line);
+      border-radius: 40px;
+      padding: 8px 16px 8px 20px;
+      z-index: 100;
+    }
+
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+      color: var(--text-bright);
+      font-weight: 600; font-size: 16px;
+      letter-spacing: -0.2px; text-decoration: none;
+    }
+
+    .nav-links { display: flex; gap: 22px; }
+    .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 500; transition: color .2s; }
+    .nav-links a:hover, .nav-links a.current { color: var(--text-bright); }
+
+    .nav-download {
+      display: flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,0.94); color: #0b1426;
+      padding: 6px 14px; border-radius: 20px;
+      font-size: 13px; font-weight: 500; text-decoration: none;
+    }
+    .nav-download svg { width: 15px; height: 15px; fill: #0b1426; }
+
+    /* --- Layout --- */
+    .page {
+      width: 100%;
+      max-width: 760px;
+      padding: 150px 24px 100px;
+      z-index: 10;
+    }
+
+    .page-header { margin-bottom: 48px; }
+
+    .kicker {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--accent-ice);
+      margin-bottom: 14px;
+      display: block;
+    }
+
+    h1 {
+      font-size: 44px;
+      font-weight: 600;
+      letter-spacing: -1.2px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .lede { font-size: 17px; color: var(--text-muted); line-height: 1.6; max-width: 620px; }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-bottom: 40px;
+    }
+    .back-link:hover { color: var(--text-bright); }
+
+    /* --- Reveal on scroll --- */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+    /* --- Form card --- */
+    .form-card {
+      background: var(--navy-surface);
+      border: 1px solid var(--navy-line);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 50px rgba(77, 124, 240, 0.1);
+    }
+
+    .form-card-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--navy-line);
+      background: rgba(138, 180, 255, 0.05);
+    }
+
+    .form-card-head .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      box-shadow: 0 0 10px rgba(77, 124, 240, 0.7);
+    }
+
+    .form-card-head span {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .form-embed {
+      width: 100%;
+      min-height: 640px;
+      border: 0;
+      display: block;
+      background: var(--navy-surface);
+    }
+
+    /* Placeholder shown until a real Youform embed URL is wired in */
+    .form-placeholder {
+      padding: 48px 32px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .form-placeholder .icon {
+      width: 40px; height: 40px;
+      margin: 0 auto 20px;
+      color: var(--accent-ice);
+    }
+
+    .form-placeholder h3 {
+      color: var(--text-bright);
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .form-placeholder p {
+      font-size: 14px;
+      line-height: 1.6;
+      max-width: 440px;
+      margin: 0 auto 20px;
+    }
+
+    .form-placeholder code {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      background: var(--navy-raised);
+      border: 1px solid var(--navy-line);
+      border-radius: 5px;
+      padding: 2px 6px;
+      color: var(--accent-ice);
+    }
+
+    .fallback-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: linear-gradient(to bottom, var(--accent-blue), #3a63cf);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 18px;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: 0 2px 12px rgba(77, 124, 240, 0.35);
+    }
+
+    /* --- Alt ways to reach out --- */
+    .alt-ways {
+      margin-top: 40px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .alt-card {
+      border: 1px solid var(--navy-line);
+      border-radius: 12px;
+      padding: 18px 20px;
+      background: rgba(138, 180, 255, 0.03);
+    }
+
+    .alt-card h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-bright);
+    }
+
+    .alt-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .alt-card a.inline { color: var(--accent-ice); text-decoration: none; border-bottom: 1px solid rgba(138,180,255,0.35); }
+    .alt-card a.inline:hover { border-bottom-color: var(--accent-ice); }
+
+    .footer-note {
+      font-size: 11px;
+      color: rgba(139,153,180,0.6);
+      line-height: 1.6;
+      margin-top: 56px;
+      border-top: 1px solid var(--navy-line);
+      padding-top: 22px;
+    }
+
+    @media (max-width: 768px) {
+      .pill-nav { min-width: calc(100% - 32px); width: calc(100% - 32px); padding: 10px 12px; }
+      .nav-links { display: none; }
+      .page { padding: 120px 20px 80px; }
+      h1 { font-size: 32px; }
+      .alt-ways { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .aurora-blade { animation: none; }
+      .parallax-layer { transform: none !important; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="aurora-container">
+    <div class="parallax-layer" data-speed="0.16"><div class="aurora-blade blade-1"></div></div>
+    <div class="parallax-layer" data-speed="0.28"><div class="aurora-blade blade-2"></div></div>
+    <div class="film-grain"></div>
+    <div class="vignette"></div>
+  </div>
+
+  <nav class="pill-nav">
+    <a href="index.html" class="nav-brand">
+      <svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <path class="edge" d="M9 24V8"/><path class="edge" d="M23 8v16"/><path class="edge-dim" d="M9 8l14 16"/>
+        <circle class="node" cx="9" cy="8" r="3.4"/><circle class="node" cx="23" cy="24" r="3.4"/>
+      </svg>
+      Nib
+    </a>
+    <div class="nav-links">
+      <a href="index.html#features">Features</a>
+      <a href="setup.html#install">Install</a>
+      <a href="setup.html#usage">Usage</a>
+      <a href="suggestions.html" class="current">Suggestions</a>
+    </div>
+    <a href="https://github.com/puria1234/collegeboard-nexus" class="nav-download">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+  </nav>
+
+  <div class="page">
+
+    <a href="index.html" class="back-link">&larr; Back to Nib</a>
+
+    <div class="page-header reveal">
+      <span class="kicker">We're listening</span>
+      <h1>Got an idea? A bug? Tell us.</h1>
+      <p class="lede">
+        Nib is built by students, for students, and it gets better from feedback. Drop a bug report, a feature you wish it had, or just a thought &mdash; it goes straight to whoever's maintaining Nib that week.
+      </p>
+    </div>
+
+    <div class="form-card reveal">
+      <div class="form-card-head">
+        <span class="dot"></span>
+        <span>suggestions@nib &middot; powered by Youform</span>
+      </div>
+
+      <!--
+        Youform JS embed. Replace YOUR_FORM_ID below with the id from your
+        Youform share/embed panel, then delete the .form-placeholder block.
+      -->
+      <div data-youform-embed data-form="YOUR_FORM_ID" data-width="100%" data-height="640" style="display:none;"></div>
+
+      <div class="form-placeholder">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <h3>Form embed goes here</h3>
+        <p>
+          This card is wired for a live <code>Youform</code> embed. Once you drop in your real form id, set the hidden <code>data-youform-embed</code> div above to visible and remove this placeholder.
+        </p>
+      </div>
+    </div>
+
+    <div class="alt-ways reveal">
+      <div class="alt-card">
+        <h4>Found a bug?</h4>
+        <p>Open an issue on <a class="inline" href="https://github.com/puria1234/collegeboard-nexus/issues">GitHub</a> if you're comfortable there &mdash; it's the fastest way to get it looked at.</p>
+      </div>
+      <div class="alt-card">
+        <h4>Something else</h4>
+        <p>General thoughts, feature ideas, or "this broke on my school's version of AP Classroom" all belong in the form above.</p>
+      </div>
+    </div>
+
+    <p class="footer-note reveal">
+      Nib is an independent open-source project. Not affiliated with, endorsed by, or connected to the College Board.
+      Suggestions are reviewed by maintainers on their own time &mdash; there's no guaranteed response time.
+    </p>
+
+  </div>
+
+  <script src="https://app.youform.com/embed.js"></script>
+  <script>
+    (function () {
+      var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      var layers = Array.prototype.slice.call(document.querySelectorAll('.parallax-layer'));
+      var ticking = false;
+
+      function updateParallax() {
+        var y = window.pageYOffset || document.documentElement.scrollTop;
+        layers.forEach(function (layer) {
+          var speed = parseFloat(layer.getAttribute('data-speed')) || 0.2;
+          layer.style.transform = 'translate3d(0, ' + (y * speed) + 'px, 0)';
+        });
+        ticking = false;
+      }
+
+      function onScroll() {
+        if (!ticking) {
+          window.requestAnimationFrame(updateParallax);
+          ticking = true;
+        }
+      }
+
+      if (!reduceMotion) {
+        window.addEventListener('scroll', onScroll, { passive: true });
+        updateParallax();
+      }
+
+      var revealEls = document.querySelectorAll('.reveal');
+
+      if ('IntersectionObserver' in window && !reduceMotion) {
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+        revealEls.forEach(function (el) { observer.observe(el); });
+      } else {
+        revealEls.forEach(function (el) { el.classList.add('is-visible'); });
+      }
+    })();
+  </script>
+
+</body>
+</html>
