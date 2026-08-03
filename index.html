@@ -33,6 +33,8 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    html { scroll-behavior: smooth; }
+
     body {
       background-color: var(--bg-deep);
       color: var(--text-bright);
@@ -45,6 +47,8 @@
       position: relative;
       -webkit-font-smoothing: antialiased;
     }
+
+    a, button { -webkit-tap-highlight-color: transparent; }
 
     /* --- Aurora Background --- */
     .aurora-container {
@@ -158,9 +162,17 @@
       font-size: 14px;
       font-weight: 500;
       transition: color 0.2s;
+      outline: none;
+      border-radius: 4px;
     }
 
-    .nav-links a:hover { color: var(--text-bright); }
+    .nav-links a:hover,
+    .nav-links a.active { color: var(--text-bright); }
+
+    .nav-links a:focus-visible {
+      outline: 2px solid var(--accent-ice);
+      outline-offset: 4px;
+    }
 
     .nav-actions { display: flex; align-items: center; gap: 16px; }
 
@@ -430,15 +442,6 @@
       font-weight: 500;
     }
 
-    .popup-footer {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: rgba(139, 153, 180, 0.75);
-      padding: 10px 18px;
-      background: rgba(0, 0, 0, 0.25);
-      border-top: 1px solid var(--navy-line);
-    }
-
     .mock-caption {
       font-size: 12px;
       color: rgba(139, 153, 180, 0.8);
@@ -502,15 +505,6 @@
       line-height: 1.6;
     }
 
-    @media (max-width: 768px) {
-      .pill-nav { min-width: calc(100% - 48px); width: calc(100% - 48px); padding: 12px; }
-      .nav-links { display: none; }
-      .hero-title { font-size: 42px !important; }
-      .button-row { flex-direction: column; width: 100%; max-width: 320px; }
-      .keycap-btn { justify-content: center; }
-      .feature-grid { grid-template-columns: 1fr; }
-    }
-
     /* --- Scroll reveal --- */
     .reveal {
       opacity: 0;
@@ -523,10 +517,358 @@
       transform: translateY(0);
     }
 
+    /* --- Guide sections (install / key / usage / limits / troubleshooting) --- */
+    .page {
+      width: 100%;
+      max-width: 760px;
+      padding: 0 24px 40px;
+      z-index: 10;
+    }
+
+    section[id] { scroll-margin-top: 110px; }
+
+    .page-header {
+      margin-bottom: 56px;
+      padding-top: 40px;
+      border-top: 1px solid var(--navy-line);
+    }
+
+    .kicker {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--accent-ice);
+      margin-bottom: 14px;
+      display: block;
+    }
+
+    h1.page-title {
+      font-size: 44px;
+      font-weight: 600;
+      letter-spacing: -1.2px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .lede { font-size: 17px; color: var(--text-muted); line-height: 1.6; max-width: 620px; }
+
+    h2 {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--accent-ice);
+      padding-top: 22px;
+      border-top: 1px solid var(--navy-line);
+      margin-bottom: 28px;
+    }
+
+    .page section { margin-bottom: 60px; }
+
+    .step { display: flex; gap: 18px; margin-bottom: 26px; }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--navy-line);
+      background: var(--navy-raised);
+      color: var(--accent-ice);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+
+    .step-body h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; letter-spacing: -0.2px; }
+    .step-body p { font-size: 14px; line-height: 1.65; color: var(--text-muted); }
+    .step-body p + p { margin-top: 8px; }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      background: var(--navy-raised);
+      border: 1px solid var(--navy-line);
+      border-radius: 5px;
+      padding: 2px 6px;
+      color: var(--accent-ice);
+    }
+
+    pre {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      line-height: 1.9;
+      background: var(--navy-surface);
+      border: 1px solid var(--navy-line);
+      border-radius: 10px;
+      padding: 14px 16px;
+      color: var(--text-muted);
+      overflow-x: auto;
+      margin-top: 12px;
+    }
+
+    pre .k { color: var(--accent-ice); }
+
+    a.inline { color: var(--accent-ice); text-decoration: none; border-bottom: 1px solid rgba(138,180,255,0.35); }
+    a.inline:hover { border-bottom-color: var(--accent-ice); }
+
+    .callout {
+      background: var(--navy-surface);
+      border: 1px solid var(--navy-line);
+      border-left: 2px solid var(--accent-blue);
+      border-radius: 0 10px 10px 0;
+      padding: 16px 18px;
+      margin-top: 18px;
+    }
+
+    .callout strong { display: block; font-size: 14px; margin-bottom: 5px; }
+    .callout p { font-size: 13.5px; line-height: 1.6; color: var(--text-muted); }
+
+    .limits { list-style: none; }
+    .limits li {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-muted);
+      padding: 12px 0 12px 22px;
+      border-bottom: 1px solid var(--navy-line);
+      position: relative;
+    }
+    .limits li:first-child { padding-top: 0; }
+    .limits li::before {
+      content: "";
+      position: absolute;
+      left: 2px; top: 20px;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+    }
+    .limits li:first-child::before { top: 8px; }
+
+    .trouble { border-top: 1px solid var(--navy-line); }
+    .trouble-row { padding: 18px 0; border-bottom: 1px solid var(--navy-line); }
+    .trouble-q { font-size: 15px; font-weight: 500; margin-bottom: 7px; }
+    .trouble-a { font-size: 13.5px; line-height: 1.65; color: var(--text-muted); }
+
+    /* --- Suggestions form --- */
+    .form-card {
+      background: var(--navy-surface);
+      border: 1px solid var(--navy-line);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 50px rgba(77, 124, 240, 0.1);
+    }
+
+    .form-card-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--navy-line);
+      background: rgba(138, 180, 255, 0.05);
+    }
+
+    .form-card-head .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      box-shadow: 0 0 10px rgba(77, 124, 240, 0.7);
+      animation: pulse-dot 2.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .form-card-head span { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+
+    .suggestion-form { padding: 24px; display: flex; flex-direction: column; gap: 18px; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    .form-field { position: relative; display: flex; flex-direction: column; gap: 7px; }
+
+    .form-field label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      transition: color 0.25s ease;
+    }
+
+    .form-field:focus-within label { color: var(--accent-ice); }
+
+    .form-field input,
+    .form-field select,
+    .form-field textarea {
+      font-family: var(--font-ui);
+      font-size: 14px;
+      color: var(--text-bright);
+      background: var(--navy-raised);
+      border: 1px solid var(--navy-line);
+      border-radius: 8px;
+      padding: 11px 13px;
+      outline: none;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
+    }
+
+    .form-field textarea { resize: vertical; min-height: 110px; line-height: 1.6; }
+
+    .form-field input:hover,
+    .form-field select:hover,
+    .form-field textarea:hover { border-color: rgba(138, 180, 255, 0.3); }
+
+    .form-field input:focus,
+    .form-field select:focus,
+    .form-field textarea:focus {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(77, 124, 240, 0.22);
+      transform: translateY(-1px);
+    }
+
+    .form-field select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b99b4' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+      padding-right: 34px;
+    }
+
+    .form-submit {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      background: linear-gradient(to bottom, var(--accent-blue), #3a63cf);
+      color: #fff;
+      font-family: var(--font-ui);
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 9px;
+      padding: 13px 20px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(77, 124, 240, 0.35);
+      transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    }
+
+    .form-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(77, 124, 240, 0.45); }
+    .form-submit:active { transform: translateY(0); box-shadow: 0 3px 10px rgba(77, 124, 240, 0.3); }
+    .form-submit:disabled { cursor: default; opacity: 0.85; }
+
+    .form-submit .spinner {
+      width: 15px; height: 15px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      border-top-color: #fff;
+      display: none;
+      animation: spin 0.7s linear infinite;
+    }
+
+    .form-submit.is-loading .spinner { display: inline-block; }
+    .form-submit.is-loading .submit-label { opacity: 0.85; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .form-note { font-size: 12px; color: rgba(139, 153, 180, 0.7); }
+
+    .form-status {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      padding: 10px 14px;
+      border-radius: 8px;
+    }
+
+    .form-status.is-visible { display: flex; animation: status-in 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    .form-status.success { background: rgba(88, 214, 141, 0.12); color: #8ee6ae; border: 1px solid rgba(88, 214, 141, 0.3); }
+    .form-status.error { background: rgba(240, 100, 100, 0.1); color: #f19b9b; border: 1px solid rgba(240, 100, 100, 0.3); }
+
+    @keyframes status-in {
+      from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .form-success-check {
+      width: 18px; height: 18px;
+      flex-shrink: 0;
+    }
+
+    .form-success-check circle {
+      stroke: #8ee6ae;
+      stroke-width: 2;
+      fill: none;
+      stroke-dasharray: 63;
+      stroke-dashoffset: 63;
+      animation: draw-circle 0.5s ease forwards;
+    }
+
+    .form-success-check path {
+      stroke: #8ee6ae;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      stroke-dasharray: 16;
+      stroke-dashoffset: 16;
+      animation: draw-check 0.3s ease 0.4s forwards;
+    }
+
+    @keyframes draw-circle { to { stroke-dashoffset: 0; } }
+    @keyframes draw-check { to { stroke-dashoffset: 0; } }
+
+    .suggestion-form.is-hidden { display: none; }
+
+    /* --- Alt ways to reach out --- */
+    .alt-ways {
+      margin-top: 40px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .alt-card {
+      border: 1px solid var(--navy-line);
+      border-radius: 12px;
+      padding: 18px 20px;
+      background: rgba(138, 180, 255, 0.03);
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .alt-card:hover { border-color: rgba(138, 180, 255, 0.3); transform: translateY(-2px); }
+
+    .alt-card h4 { font-size: 14px; font-weight: 600; margin-bottom: 6px; color: var(--text-bright); }
+    .alt-card p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+    .footer-note {
+      font-size: 11px;
+      color: rgba(139, 153, 180, 0.6);
+      margin-top: 40px;
+      line-height: 1.6;
+      border-top: 1px solid var(--navy-line);
+      padding-top: 22px;
+    }
+
+    @media (max-width: 768px) {
+      .pill-nav { min-width: calc(100% - 48px); width: calc(100% - 48px); padding: 12px; }
+      .nav-links { display: none; }
+      .hero-title { font-size: 42px !important; }
+      .button-row { flex-direction: column; width: 100%; max-width: 320px; }
+      .keycap-btn { justify-content: center; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .alt-ways { grid-template-columns: 1fr; }
+      h1.page-title { font-size: 32px; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .aurora-blade { animation: none; }
       .parallax-layer { transform: none !important; }
       .reveal { opacity: 1; transform: none; transition: none; }
+      .form-card-head .dot { animation: none; }
     }
   </style>
 </head>
@@ -541,7 +883,7 @@
   </div>
 
   <nav class="pill-nav">
-    <a href="#" class="nav-brand">
+    <a href="#top" class="nav-brand">
       <svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true">
         <path class="edge" d="M9 24V8"/>
         <path class="edge" d="M23 8v16"/>
@@ -553,10 +895,10 @@
     </a>
     <div class="nav-links">
       <a href="#features">Features</a>
-      <a href="setup.html#install">Install</a>
-      <a href="setup.html#usage">Usage</a>
-      <a href="suggestions.html">Suggestions</a>
-      <a href="#">Source</a>
+      <a href="#install">Install</a>
+      <a href="#usage">Usage</a>
+      <a href="#limits">Limits</a>
+      <a href="#suggestions">Suggestions</a>
     </div>
     <div class="nav-actions">
       <a href="https://github.com/puria1234/collegeboard-nexus" class="nav-download">
@@ -566,7 +908,7 @@
     </div>
   </nav>
 
-  <main class="hero-container">
+  <main class="hero-container" id="top">
     <svg class="logo-mark hero-logo" viewBox="0 0 32 32" aria-label="Nib">
       <path class="edge" d="M9 24V8"/>
       <path class="edge" d="M23 8v16"/>
@@ -590,7 +932,7 @@
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
         Download the extension
       </a>
-      <a href="setup.html" class="keycap-btn secondary">
+      <a href="#install" class="keycap-btn secondary">
         <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
         How to install
       </a>
@@ -635,7 +977,7 @@
         <div class="preview-box">
           <div class="preview-head">24 questions ready</div>
           <div class="preview-lines">
-            Units 3&ndash;4, multiple choice<br>
+            Units 3 to 4, multiple choice<br>
             21 pulled out as text<br>
             3 use image choices, flagged in the file
           </div>
@@ -665,17 +1007,274 @@
       </div>
       <div class="feature reveal">
         <h3>AI study tools</h3>
-        <p>Generate similar questions, flashcards, or a concept summary from what you extracted. Bring your own Claude API key; it stays in your browser.</p>
+        <p>Generate similar questions, flashcards, or a concept summary from what you extracted. Bring your own Claude API key, it stays in your browser.</p>
       </div>
     </div>
 
-    <a href="setup.html" class="ghost-pill reveal">Read the setup guide &rarr;</a>
-
-    <p class="legal-note reveal">
-      Nib is an independent open-source project. Not affiliated with, endorsed by, or connected to the College Board.
-      Only multiple-choice questions are supported. Use it in line with your school's academic integrity policy.
-    </p>
+    <a href="#install" class="ghost-pill reveal">Read the setup guide &rarr;</a>
   </main>
+
+  <div class="page">
+
+    <div class="page-header reveal">
+      <span class="kicker">Setup guide</span>
+      <h1 class="page-title">Get Nib running in about five minutes.</h1>
+      <p class="lede">
+        Nib is not on the Chrome Web Store yet, so you install it the developer way. Download the folder, turn on one setting, and point Chrome at it. Nothing here requires knowing how to code.
+      </p>
+    </div>
+
+    <!-- INSTALL -->
+    <section id="install">
+      <h2>Install the extension</h2>
+
+      <div class="step reveal">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Download the folder</h3>
+          <p>On the <a class="inline" href="https://github.com/puria1234/collegeboard-nexus">GitHub page</a>, click the green Code button, then Download ZIP. Unzip it somewhere you will not accidentally delete, like Documents. Not Downloads, since the extension breaks if the folder moves.</p>
+          <p>If you use git, clone it instead:</p>
+          <pre><span class="k">git clone</span> https://github.com/puria1234/collegeboard-nexus</pre>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Open your extensions page</h3>
+          <p>Paste the address for your browser into the address bar:</p>
+          <pre>Chrome &nbsp;<span class="k">chrome://extensions</span>
+Edge &nbsp;&nbsp;&nbsp;<span class="k">edge://extensions</span>
+Brave &nbsp;&nbsp;<span class="k">brave://extensions</span></pre>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>Turn on Developer mode</h3>
+          <p>The toggle sits in the top right corner of that page. Without it, the Load unpacked button in the next step stays hidden.</p>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>Load unpacked</h3>
+          <p>Click <strong>Load unpacked</strong> and select the project folder. Pick the folder that contains <code>manifest.json</code> directly. A common mistake is selecting the outer folder from the ZIP, which holds another folder inside it.</p>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <h3>Pin it to your toolbar</h3>
+          <p>Nib should now appear in your extensions list. Click the puzzle piece icon in the toolbar and pin Nib so the icon is always visible.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- API KEY -->
+    <section id="key">
+      <h2>Add your Claude API key</h2>
+
+      <p class="lede reveal" style="font-size:15px;margin-bottom:26px;">
+        Only needed for the AI study tools. Extracting questions and the Answer Hider both work without a key.
+      </p>
+
+      <div class="step reveal">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Create a key</h3>
+          <p>Sign in at <a class="inline" href="https://console.anthropic.com">console.anthropic.com</a> and create an API key under API Keys. Copy it when it appears, since the console will not show it to you again.</p>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Paste it into Nib</h3>
+          <p>Open the popup, click the gear icon in the top right, and paste the key into Settings. It is saved in your browser's local storage and is never sent anywhere except to Anthropic when you generate something.</p>
+        </div>
+      </div>
+
+      <div class="callout reveal">
+        <strong>API usage costs money</strong>
+        <p>Claude API keys are billed per use, separately from a Claude subscription. Generating flashcards for one unit costs a fraction of a cent, but set a spending limit in the console so a runaway loop cannot surprise you.</p>
+      </div>
+    </section>
+
+    <!-- USAGE -->
+    <section id="usage">
+      <h2>Using it</h2>
+
+      <div class="step reveal">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Open a question page</h3>
+          <p>Go to an AP Classroom assignment or quiz that shows multiple-choice questions. The popup only activates on <code>apclassroom.collegeboard.org</code>, so on any other site the buttons stay greyed out.</p>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Pick your course</h3>
+          <p>Click the Nib icon and choose your course from the dropdown. This is required before extraction, because it tells Nib how to label the export.</p>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>Optional: turn on Answer Hider</h3>
+          <p>Flip the toggle to cover the correct and incorrect markers so a graded review page works as fresh practice. A small floating panel also appears on the page itself if you want to toggle it without reopening the popup.</p>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>Extract and download</h3>
+          <p>Hit Extract questions. Nib shows you what it found, including any questions whose answer choices are images rather than text. If the count looks right, click Download to save a <code>.txt</code>.</p>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <h3>Optional: generate study material</h3>
+          <p>Under AI study tools, pick a mode: similar questions, flashcards, or a concept summary. Choose a count where it applies, then click Generate. Output appears in the popup for you to copy.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- LIMITS -->
+    <section id="limits">
+      <h2>What it will not do</h2>
+      <ul class="limits reveal">
+        <li>Only multiple-choice questions are supported. Free response and other formats are skipped.</li>
+        <li>When answer choices are images, the export notes that they could not be pulled out as text rather than dropping them silently.</li>
+        <li>The popup stays inactive anywhere outside <code>apclassroom.collegeboard.org</code>.</li>
+        <li>Nothing syncs. Your key and settings live in one browser profile on one computer.</li>
+      </ul>
+    </section>
+
+    <!-- TROUBLESHOOTING -->
+    <section id="troubleshooting">
+      <h2>If something breaks</h2>
+      <div class="trouble reveal">
+        <div class="trouble-row">
+          <div class="trouble-q">The popup opens but everything is greyed out</div>
+          <div class="trouble-a">You are not on an AP Classroom page, or the page loaded before the extension did. Refresh the tab and reopen the popup.</div>
+        </div>
+        <div class="trouble-row">
+          <div class="trouble-q">Load unpacked says the manifest is missing</div>
+          <div class="trouble-a">You selected a folder one level too high. Open it, and if you see another folder rather than <code>manifest.json</code>, select that inner one instead.</div>
+        </div>
+        <div class="trouble-row">
+          <div class="trouble-q">Extract finds zero questions</div>
+          <div class="trouble-a">The questions may not have finished rendering. Scroll through the whole set so every question loads, then try again.</div>
+        </div>
+        <div class="trouble-row">
+          <div class="trouble-q">AI generation fails with a CORS error</div>
+          <div class="trouble-a">Calls to the Anthropic API from a browser extension need the <code>anthropic-dangerous-direct-browser-access</code> header set to true. If you built from source and stripped it out, add it back.</div>
+        </div>
+        <div class="trouble-row">
+          <div class="trouble-q">The extension vanished after a restart</div>
+          <div class="trouble-a">Unpacked extensions unload if their folder is moved, renamed, or deleted. Put the folder back where it was and reload it from the extensions page.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUGGESTIONS -->
+    <section id="suggestions">
+      <div class="page-header reveal">
+        <span class="kicker">We are listening</span>
+        <h1 class="page-title">Got an idea? A bug? Tell us.</h1>
+        <p class="lede">
+          Nib is built by students, for students, and it gets better from feedback. Drop a bug report, a feature you wish it had, or just a thought. It goes straight to whoever is maintaining Nib that week.
+        </p>
+      </div>
+
+      <div class="form-card reveal">
+        <div class="form-card-head">
+          <span class="dot"></span>
+          <span>suggestions@nib</span>
+        </div>
+
+        <form class="suggestion-form" id="suggestion-form">
+          <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY">
+          <input type="hidden" name="subject" value="New suggestion for Nib">
+          <input type="hidden" name="from_name" value="Nib site">
+          <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off">
+
+          <div class="form-row">
+            <div class="form-field">
+              <label for="s-name">Name</label>
+              <input id="s-name" name="name" type="text" placeholder="Optional" autocomplete="name">
+            </div>
+            <div class="form-field">
+              <label for="s-email">Email</label>
+              <input id="s-email" name="email" type="email" placeholder="Optional, for a reply" autocomplete="email">
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="s-type">Type of feedback</label>
+            <select id="s-type" name="type">
+              <option value="Bug report">Bug report</option>
+              <option value="Feature request">Feature request</option>
+              <option value="General suggestion">General suggestion</option>
+              <option value="Something else">Something else</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="s-message">Message</label>
+            <textarea id="s-message" name="message" placeholder="What is on your mind" required></textarea>
+          </div>
+
+          <button type="submit" class="form-submit">
+            <span class="spinner"></span>
+            <span class="submit-label">Send it over</span>
+          </button>
+
+          <div class="form-status success" id="form-status-success">
+            <svg class="form-success-check" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M7 12.5l3 3 7-7"></path>
+            </svg>
+            <span>Thanks, that is in. We read every one.</span>
+          </div>
+
+          <div class="form-status error" id="form-status-error">
+            <span>Something went wrong sending that. Try again in a minute, or open an issue on GitHub instead.</span>
+          </div>
+
+          <p class="form-note">Sent through Web3Forms. No account needed, and your message goes straight to the maintainers.</p>
+        </form>
+      </div>
+
+      <div class="alt-ways reveal">
+        <div class="alt-card">
+          <h4>Found a bug?</h4>
+          <p>Open an issue on <a class="inline" href="https://github.com/puria1234/collegeboard-nexus/issues">GitHub</a> if you are comfortable there. It is the fastest way to get it looked at.</p>
+        </div>
+        <div class="alt-card">
+          <h4>Something else</h4>
+          <p>General thoughts, feature ideas, or "this broke on my school's version of AP Classroom" all belong in the form above.</p>
+        </div>
+      </div>
+    </section>
+
+    <p class="footer-note reveal">
+      Nib is an independent open-source project. Not affiliated with, endorsed by, or connected to the College Board.
+      Exported questions are College Board material, so keep them to yourself and use Nib in line with your school's academic integrity policy.
+      Suggestions are reviewed by maintainers on their own time. There is no guaranteed response time.
+    </p>
+
+  </div>
 
   <script>
     (function () {
@@ -729,6 +1328,83 @@
         revealEls.forEach(function (el) { observer.observe(el); });
       } else {
         revealEls.forEach(function (el) { el.classList.add('is-visible'); });
+      }
+
+      /* Scroll-spy nav: highlight the link for whichever section is in view.
+         No class is ever pinned by a click, so nothing stays stuck highlighted. */
+      var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav-links a[href^="#"]'));
+      var linkForId = {};
+      navLinks.forEach(function (a) {
+        linkForId[a.getAttribute('href').slice(1)] = a;
+      });
+
+      var spyTargets = Object.keys(linkForId)
+        .map(function (id) { return document.getElementById(id); })
+        .filter(Boolean);
+
+      if ('IntersectionObserver' in window && spyTargets.length) {
+        var spyObserver = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            var link = linkForId[entry.target.id];
+            if (!link) return;
+            navLinks.forEach(function (a) { a.classList.remove('active'); });
+            link.classList.add('active');
+          });
+        }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+
+        spyTargets.forEach(function (t) { spyObserver.observe(t); });
+      }
+
+      /* Prevent nav links from staying visually pressed/focused after a click,
+         while keeping a real focus ring for keyboard users. */
+      navLinks.forEach(function (a) {
+        a.addEventListener('mouseup', function () { a.blur(); });
+      });
+
+      /* Web3Forms submission with a small loading and success animation */
+      var form = document.getElementById('suggestion-form');
+      if (form) {
+        var submitBtn = form.querySelector('.form-submit');
+        var successBox = document.getElementById('form-status-success');
+        var errorBox = document.getElementById('form-status-error');
+
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          errorBox.classList.remove('is-visible');
+          successBox.classList.remove('is-visible');
+          submitBtn.classList.add('is-loading');
+          submitBtn.disabled = true;
+
+          var formData = new FormData(form);
+
+          fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: { Accept: 'application/json' },
+            body: formData
+          })
+            .then(function (res) { return res.json(); })
+            .then(function (json) {
+              submitBtn.classList.remove('is-loading');
+              if (json.success) {
+                form.querySelectorAll('input, select, textarea').forEach(function (el) {
+                  if (el.type !== 'hidden' && el.type !== 'checkbox') el.classList.add('is-hidden');
+                });
+                var fields = form.querySelectorAll('.form-field, .form-row');
+                fields.forEach(function (f) { f.style.display = 'none'; });
+                submitBtn.style.display = 'none';
+                successBox.classList.add('is-visible');
+              } else {
+                errorBox.classList.add('is-visible');
+                submitBtn.disabled = false;
+              }
+            })
+            .catch(function () {
+              submitBtn.classList.remove('is-loading');
+              errorBox.classList.add('is-visible');
+              submitBtn.disabled = false;
+            });
+        });
       }
     })();
   </script>
