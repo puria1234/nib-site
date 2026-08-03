@@ -291,7 +291,50 @@
       font-family: var(--font-mono);
       font-size: 12px;
       color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .trust-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
       margin-bottom: 64px;
+    }
+
+    .download-count-pill,
+    .virustotal-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      border: 1px solid var(--navy-line);
+      background: rgba(138, 180, 255, 0.05);
+      border-radius: 20px;
+      padding: 7px 13px;
+      text-decoration: none;
+      transition: border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .download-count-pill #download-count {
+      color: var(--accent-ice);
+      font-weight: 700;
+    }
+
+    .virustotal-pill svg {
+      width: 13px;
+      height: 13px;
+      stroke: #6fcf97;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .virustotal-pill:hover {
+      border-color: rgba(111, 207, 151, 0.5);
+      color: var(--text-bright);
     }
 
     /* --- Popup Mockup (matches the real extension popup) --- */
@@ -972,7 +1015,7 @@
     </p>
 
     <div class="button-row">
-      <a href="https://github.com/puria1234/collegeboard-nexus" class="keycap-btn">
+      <a href="/api/download-extension" class="keycap-btn">
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
         Download the extension
       </a>
@@ -982,6 +1025,16 @@
       </a>
     </div>
     <div class="install-caption">Load unpacked in Chrome, Edge, or Brave. Not on any store yet.</div>
+
+    <div class="trust-row">
+      <span class="download-count-pill" id="download-count-pill">
+        <span id="download-count">&mdash;</span>+ downloads
+      </span>
+      <a class="virustotal-pill" id="virustotal-link" href="https://www.virustotal.com/gui/url/643ef10fdb8e3a2ff624c2560e25198efbb37fb3665601c7b14e335d27bc87d2/detection" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+        0/92 flagged, scanned by VirusTotal
+      </a>
+    </div>
 
     <!-- Popup Mockup -->
     <div class="popup-frame reveal">
@@ -1425,6 +1478,20 @@ Brave &nbsp;&nbsp;<span class="k">brave://extensions</span></pre>
 
         window.addEventListener('scroll', onCardScroll, { passive: true });
         updateCardParallax();
+      }
+
+      /* Live download counter, pulled from /api/downloads */
+      var countEl = document.getElementById('download-count');
+      if (countEl) {
+        fetch('/api/downloads')
+          .then(function (res) { return res.json(); })
+          .then(function (data) {
+            var n = data && typeof data.count === 'number' ? data.count : 0;
+            countEl.textContent = n.toLocaleString();
+          })
+          .catch(function () {
+            countEl.textContent = '0';
+          });
       }
 
       /* Web3Forms submission with a small loading and success animation */
