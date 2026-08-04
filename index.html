@@ -1357,6 +1357,7 @@ Brave &nbsp;&nbsp;<span class="k">brave://extensions</span></pre>
 
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/counterapi/dist/counter.browser.min.js"></script>
   <script>
     (function () {
       var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1472,14 +1473,14 @@ Brave &nbsp;&nbsp;<span class="k">brave://extensions</span></pre>
         updateCardParallax();
       }
 
-      /* Download tracking: a free, keyless hit counter (counterapi.dev) bumped
-         each time someone clicks the download button. Best-effort only, never
-         blocks the actual navigation to GitHub if the request fails or is slow. */
-      var COUNTER_NAMESPACE = 'nib-ap-classroom-ext';
-      var COUNTER_KEY = 'downloads';
-      var COUNTER_GET = 'https://api.countapi.xyz/get/' + COUNTER_NAMESPACE + '/' + COUNTER_KEY;
-      var COUNTER_HIT = 'https://api.countapi.xyz/hit/' + COUNTER_NAMESPACE + '/' + COUNTER_KEY;
+      /* Download tracking: CounterAPI v2 (counterapi.dev) bumped each time
+         someone clicks the download button. Best-effort only, never blocks
+         the actual download if the request fails or is slow. */
+      var COUNTER_NAME = 'downloads';
       var downloadCountEl = document.getElementById('download-count');
+      var nibCounter = (typeof Counter !== 'undefined')
+        ? new Counter({ workspace: 'nib-ap-classroom-ext', accessToken: 'ut_xA5V7i7bqO4GAe9118G1Czy7Gjinpv7Kc5IwOqpL' })
+        : null;
 
       function renderDownloadCount(count) {
         if (!downloadCountEl || typeof count !== 'number') return;
@@ -1487,19 +1488,19 @@ Brave &nbsp;&nbsp;<span class="k">brave://extensions</span></pre>
         downloadCountEl.style.display = 'block';
       }
 
-      fetch(COUNTER_GET)
-        .then(function (res) { return res.json(); })
-        .then(function (json) { renderDownloadCount(json && json.value); })
-        .catch(function () { /* counter is decorative, fail silently */ });
+      if (nibCounter) {
+        nibCounter.get(COUNTER_NAME)
+          .then(function (result) { renderDownloadCount(result && result.value); })
+          .catch(function () { /* counter is decorative, fail silently */ });
 
-      document.querySelectorAll('[data-track-download="true"]').forEach(function (link) {
-        link.addEventListener('click', function () {
-          fetch(COUNTER_HIT, { keepalive: true })
-            .then(function (res) { return res.json(); })
-            .then(function (json) { renderDownloadCount(json && json.value); })
-            .catch(function () { /* ignore, download already proceeds */ });
+        document.querySelectorAll('[data-track-download="true"]').forEach(function (link) {
+          link.addEventListener('click', function () {
+            nibCounter.up(COUNTER_NAME)
+              .then(function (result) { renderDownloadCount(result && result.value); })
+              .catch(function () { /* ignore, download already proceeds */ });
+          });
         });
-      });
+      }
 
       /* Web3Forms submission with a small loading and success animation */
       var form = document.getElementById('suggestion-form');
