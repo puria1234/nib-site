@@ -1476,7 +1476,7 @@ Brave &nbsp;&nbsp;<span class="k">brave://extensions</span></pre>
       /* Download tracking: CounterAPI v2 (counterapi.dev) bumped each time
          someone clicks the download button. Best-effort only, never blocks
          the actual download if the request fails or is slow. */
-      var COUNTER_NAME = 'downloads';
+      var COUNTER_NAME = 'nib-extension-downloads';
       var downloadCountEl = document.getElementById('download-count');
       var nibCounter = (typeof Counter !== 'undefined')
         ? new Counter({ workspace: 'nib-ap-classroom-ext', accessToken: 'ut_xA5V7i7bqO4GAe9118G1Czy7Gjinpv7Kc5IwOqpL' })
@@ -1491,7 +1491,7 @@ Brave &nbsp;&nbsp;<span class="k">brave://extensions</span></pre>
       if (nibCounter) {
         nibCounter.get(COUNTER_NAME)
           .then(function (result) { renderDownloadCount(result && result.value); })
-          .catch(function () { /* counter is decorative, fail silently */ });
+          .catch(function () { renderDownloadCount(0); });
 
         document.querySelectorAll('[data-track-download="true"]').forEach(function (link) {
           link.addEventListener('click', function () {
