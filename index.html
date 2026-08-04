@@ -1009,7 +1009,7 @@
     </p>
 
     <div class="button-row">
-      <a href="https://github.com/puria1234/nib" class="keycap-btn" id="download-link" data-track-download="true">
+      <a href="https://github.com/puria1234/nib/archive/refs/heads/main.zip" class="keycap-btn" id="download-link" data-track-download="true" download>
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
         Download the extension
       </a>
@@ -1475,9 +1475,10 @@ Brave &nbsp;&nbsp;<span class="k">brave://extensions</span></pre>
       /* Download tracking: a free, keyless hit counter (counterapi.dev) bumped
          each time someone clicks the download button. Best-effort only, never
          blocks the actual navigation to GitHub if the request fails or is slow. */
-      var COUNTER_NAMESPACE = 'nib-ap-classroom';
-      var COUNTER_NAME = 'downloads';
-      var counterBase = 'https://api.counterapi.dev/v1/' + COUNTER_NAMESPACE + '/' + COUNTER_NAME;
+      var COUNTER_NAMESPACE = 'nib-ap-classroom-ext';
+      var COUNTER_KEY = 'downloads';
+      var COUNTER_GET = 'https://api.countapi.xyz/get/' + COUNTER_NAMESPACE + '/' + COUNTER_KEY;
+      var COUNTER_HIT = 'https://api.countapi.xyz/hit/' + COUNTER_NAMESPACE + '/' + COUNTER_KEY;
       var downloadCountEl = document.getElementById('download-count');
 
       function renderDownloadCount(count) {
@@ -1486,17 +1487,17 @@ Brave &nbsp;&nbsp;<span class="k">brave://extensions</span></pre>
         downloadCountEl.style.display = 'block';
       }
 
-      fetch(counterBase)
+      fetch(COUNTER_GET)
         .then(function (res) { return res.json(); })
-        .then(function (json) { renderDownloadCount(json && json.count); })
+        .then(function (json) { renderDownloadCount(json && json.value); })
         .catch(function () { /* counter is decorative, fail silently */ });
 
       document.querySelectorAll('[data-track-download="true"]').forEach(function (link) {
         link.addEventListener('click', function () {
-          fetch(counterBase + '/up', { keepalive: true })
+          fetch(COUNTER_HIT, { keepalive: true })
             .then(function (res) { return res.json(); })
-            .then(function (json) { renderDownloadCount(json && json.count); })
-            .catch(function () { /* ignore, navigation already proceeds */ });
+            .then(function (json) { renderDownloadCount(json && json.value); })
+            .catch(function () { /* ignore, download already proceeds */ });
         });
       });
 
