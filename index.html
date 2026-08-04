@@ -1009,7 +1009,7 @@
     </p>
 
     <div class="button-row">
-      <a href="https://github.com/puria1234/nib" class="keycap-btn">
+      <a href="https://github.com/puria1234/nib" class="keycap-btn" id="download-link" data-track-download="true">
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
         Download the extension
       </a>
@@ -1019,6 +1019,7 @@
       </a>
     </div>
     <div class="install-caption">Load unpacked in Chrome, Edge, or Brave. Not on any store yet.</div>
+    <div class="install-caption" id="download-count" style="display:none;"></div>
 
     <div class="trust-row">
       <a class="virustotal-pill" id="virustotal-link" href="https://www.virustotal.com/gui/url/643ef10fdb8e3a2ff624c2560e25198efbb37fb3665601c7b14e335d27bc87d2/detection" target="_blank" rel="noopener">
@@ -1470,6 +1471,34 @@ Brave &nbsp;&nbsp;<span class="k">brave://extensions</span></pre>
         window.addEventListener('scroll', onCardScroll, { passive: true });
         updateCardParallax();
       }
+
+      /* Download tracking: a free, keyless hit counter (counterapi.dev) bumped
+         each time someone clicks the download button. Best-effort only, never
+         blocks the actual navigation to GitHub if the request fails or is slow. */
+      var COUNTER_NAMESPACE = 'nib-ap-classroom';
+      var COUNTER_NAME = 'downloads';
+      var counterBase = 'https://api.counterapi.dev/v1/' + COUNTER_NAMESPACE + '/' + COUNTER_NAME;
+      var downloadCountEl = document.getElementById('download-count');
+
+      function renderDownloadCount(count) {
+        if (!downloadCountEl || typeof count !== 'number') return;
+        downloadCountEl.textContent = count.toLocaleString() + (count === 1 ? ' download so far' : ' downloads so far');
+        downloadCountEl.style.display = 'block';
+      }
+
+      fetch(counterBase)
+        .then(function (res) { return res.json(); })
+        .then(function (json) { renderDownloadCount(json && json.count); })
+        .catch(function () { /* counter is decorative, fail silently */ });
+
+      document.querySelectorAll('[data-track-download="true"]').forEach(function (link) {
+        link.addEventListener('click', function () {
+          fetch(counterBase + '/up', { keepalive: true })
+            .then(function (res) { return res.json(); })
+            .then(function (json) { renderDownloadCount(json && json.count); })
+            .catch(function () { /* ignore, navigation already proceeds */ });
+        });
+      });
 
       /* Web3Forms submission with a small loading and success animation */
       var form = document.getElementById('suggestion-form');
